@@ -12,14 +12,11 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 
 `SpotSweeper` is a package developed for spatially-aware quality control
 (QC) methods for the detection, visualization, and removal of both local
-outliers and large artifacts in spot-based spatial transcriptomics data,
-such as 10x Genomics `Visium`, using standard QC metrics.
+outliers and regional artifacts in spot-based spatial transcriptomics
+data, such as 10x Genomics `Visium`, using standard QC metrics.
 
-The package is currently under development and is not yet available on
-Bioconductor. The package is currently in the experimental stage of
-development. If you experience an issues user the package, please open
-an issue on the [GitHub
-repository](https://github.com/MicTott/SpotSweeper/issues).
+If you experience an issues user the package, please open an issue on
+the [GitHub repository](https://github.com/MicTott/SpotSweeper/issues).
 
 To find more information, please visit the [documentation
 website](http://MicTott.github.io/SpotSweeper).
@@ -46,13 +43,6 @@ The latest development version can be installed from
 if (!require("devtools")) install.packages("devtools")
 remotes::install_github("MicTott/SpotSweeper")
 ```
-
-## Input data format
-
-In the examples below, we assume the input data are provided as a
-[SpatialExperiment](https://github.com/drighelli/SpatialExperiment)
-(SPE) object. The outputs for spot-level outliers and artifacts are
-stored in the `colData` of the SPE object.
 
 ## Tutorials
 
