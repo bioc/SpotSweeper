@@ -1,10 +1,12 @@
 Package: SpotSweeper
 Title: Spatially-aware quality control for spatial transcriptomics
-Version: 0.99.5
+Version: 1.0.1
 Date: 2024-4-10
 Authors@R: c(
     person("Michael", "Totty", ,"mictott@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9292-8556")),
+               person("Stephanie", "Hicks", ,email = "shicks19@jhu.edu", role = c("aut"),
+           comment = c(ORCID = "0000-0002-7858-0231")),
     person("Boyi", "Guo", ,email = "boyi.guo.work@gmail.com", role = c("aut"),
            comment = c(ORCID = "0000-0003-2950-2349")))
 Description: Spatially-aware quality control (QC) software for both spot-level 
