@@ -16,9 +16,12 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
+
 ```{r style, echo = FALSE, results = 'asis'}
 BiocStyle::markdown()
 ```
+
+
 
 
 ## Introduction
@@ -154,45 +157,15 @@ outliers of library size, unique genes, mitochondrial percent, and finally, all
 local outliers. We'll then arrange these plots in a grid using 
 `ggpubr::arrange`.
 
-```{r local_outlier_plot}
+```{r local_outlier_plot, fig.width=3, fig.height=3, dpi=100}
 library(escheR)
-library(ggpubr)
 
-# library size
-p1 <- plotQC(spe,
-    metric = "sum_log",
-    outliers = "sum_outliers", point_size = 1.1
-) +
-    ggtitle("Library Size")
-
-# unique genes
-p2 <- plotQC(spe,
-    metric = "detected_log",
-    outliers = "detected_outliers", point_size = 1.1
-) +
-    ggtitle("Unique Genes")
-
-# mitochondrial percent
-p3 <- plotQC(spe,
-    metric = "subsets_Mito_percent",
-    outliers = "subsets_Mito_percent_outliers", point_size = 1.1
-) +
-    ggtitle("Mitochondrial Percent")
 
 # all local outliers
-p4 <- plotQC(spe,
-    metric = "sum_log",
-    outliers = "local_outliers", point_size = 1.1, stroke = 0.75
-) +
-    ggtitle("All Local Outliers")
+plotQC(spe, metric = "sum_log", outliers = "local_outliers", point_size = 1.1, 
+       stroke = 0.75) +
+      ggtitle("All Local Outliers")
 
-# plot
-plot_list <- list(p1, p2, p3, p4)
-ggarrange(
-    plotlist = plot_list,
-    ncol = 2, nrow = 2,
-    common.legend = FALSE
-)
 ```
 
 
@@ -214,39 +187,18 @@ colnames(colData(spe))
 
 Technical artifacts can commonly be visualized by standard QC metrics, including
 library size, unique genes, or mitochondrial percentage. We can first visualize
-the technical artifacts using the `plotQC` function. This function plots 
-the Visium spots with the specified QC metric.We'll then again arrange these 
-plots using `ggpubr::arrange`.
+the technical artifacts using the `plotQC` function. In this sample, we can 
+clearly see a hangnail artifact on the right side of the tissue section
+in the mitochondrial ratio plot.
 
-```{r artifact_QC_plots}
-# library size
-p1 <- plotQC(spe,
-    metric = "sum_umi",
-    outliers = NULL, point_size = 1.1
-) +
-    ggtitle("Library Size")
+```{r artifact_QC_plots, fig.width=4, fig.height=4, dpi=100}
 
-# unique genes
-p2 <- plotQC(spe,
-    metric = "sum_gene",
-    outliers = NULL, point_size = 1.1
-) +
-    ggtitle("Unique Genes")
-
-# mitochondrial percent
-p3 <- plotQC(spe,
+plotQC(spe,
     metric = "expr_chrM_ratio",
     outliers = NULL, point_size = 1.1
 ) +
     ggtitle("Mitochondrial Percent")
 
-# plot
-plot_list <- list(p1, p2, p3)
-ggarrange(
-    plotlist = plot_list,
-    ncol = 3, nrow = 1,
-    common.legend = FALSE
-)
 ```
 
 ### Identifying artifacts using `SpotSweeper`
@@ -279,7 +231,7 @@ We can visualize the artifacts using the `escheR` package. Here, we'll visualize
 the artifacts using the `plotQC` function and arrange these plots using 
 `ggpubr::arrange`.
 
-```{r artifact_visualization}
+```{r artifact_visualization, fig.width=4, fig.height=4, dpi=100}
 plotQC(spe,
     metric = "expr_chrM_ratio",
     outliers = "artifact", point_size = 1.1
