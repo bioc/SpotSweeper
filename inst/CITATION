@@ -1,21 +1,15 @@
-pkgVer <- function(pkg) {
-    if (!exists("meta") || is.null(meta)) meta <- packageDescription(pkg)
-    ver <- meta$Version
-    paste0('https://github.com/MicTott/SpotSweeper/', pkg, ' - R package version ', ver)
-}
+citHeader("SpotSweeper is described in the following preprint:")
 
-c(
-@article {Totty2024.06.06.597765,
-	author = {Totty, Michael S. and Hicks, Stephanie C. and Guo, Boyi},
-	title = {SpotSweeper: spatially-aware quality control for spatial transcriptomics},
-	elocation-id = {2024.06.06.597765},
-	year = {2024},
-	doi = {10.1101/2024.06.06.597765},
-	publisher = {Cold Spring Harbor Laboratory},
-	abstract = {Quality control (QC) is a crucial step to ensure the reliability and accuracy of the data obtained from RNA sequencing experiments, including spatially-resolved transcriptomics (SRT). Existing QC approaches for SRT that have been adopted from single-nucleus RNA sequencing (snRNA-seq) methods are confounded by spatial biology and are inappropriate for SRT data. In addition, no methods currently exist for identifying histological tissue artifacts unique to SRT. Here, we introduce SpotSweeper, spatially-aware QC methods for identifying local outliers and regional artifacts in SRT. SpotSweeper evaluates the quality of individual spots relative to their local neighborhood, thus minimizing bias due to biological heterogeneity, and uses multiscale methods to detect regional artifacts. Using SpotSweeper on publicly available data, we identified a consistent set of Visium barcodes/spots as systematically low quality and demonstrate that SpotSweeper accurately identifies two distinct types of regional artifacts, resulting in improved downstream clustering and marker gene detection for spatial domains.Competing Interest StatementThe authors have declared no competing interest.},
-	URL = {https://www.biorxiv.org/content/early/2024/06/09/2024.06.06.597765},
-	eprint = {https://www.biorxiv.org/content/early/2024/06/09/2024.06.06.597765.full.pdf},
-	journal = {bioRxiv}
-}
-
+citEntry(
+  entry  = "Article",
+  title  = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
+  author = personList(as.person("Michael Totty"),
+                      as.person("Stephanie Hicks"),
+                      as.person("Boyi Guo")),
+  journal = "bioRxiv",
+  year    = "2024",
+  doi     = "https://www.biorxiv.org/content/10.1101/2024.06.06.597765v1",
+  textVersion = paste0(
+    "Totty et al. (2024), SpotSweeper: spatially-aware quality control for spatial transcriptomics, bioRxiv."
+  )
 )
