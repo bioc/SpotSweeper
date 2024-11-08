@@ -86,8 +86,11 @@ findArtifacts <- function(
     stop("'shape' must be either 'hexagonal' or 'square'.")
   }
 
-  # get unique sample IDs
+  # Check if spe contains more than one sample_id
   unique_sample_ids <- unique(colData(spe)[[samples]])
+  if (length(unique_sample_ids) > 1) {
+    stop("The input SPE must contain only one sample. Please ensure only samples containing artifacts are passed.")
+  }
 
   # Initialize a list to store spe for each sample
   columnData_list <- sapply(unique_sample_ids, FUN = function(x) NULL)
