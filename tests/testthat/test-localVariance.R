@@ -23,16 +23,16 @@ test_that("examples give correct number of colData", {
 
 
 # NOTE: this test currently gives essentially the same, but not exact numbers.
-# this likely has to do with using exact knn ties being chosen randomly.
-# need to change to use knn within a radius, which will use all tied points.
+# this likely has to do with using exact knn ties being chosen randomly in edge
+# cases.
 #
 # This is very minor as findArtifacts test always passes with the same number
 # of artifact points, so the function is working as expected.
 #
-#test_that("examples gives correct local variance", {
-#  expect_equal(colData(spe)$k18[1:10], c(0.6205693,  0.8147886,  0.6324888,
+# test_that("examples gives correct local variance", {
+#  expect_equal), c(0.6205693,  0.8147886,  0.6324888,
 #                                         -0.9733463,  1.0527102,  0.8142039,
 #                                         -2.9437993, -0.9599085,  0.2998882,
 #                                         0.9236396))
-#})
+# })
 
