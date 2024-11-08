@@ -10,7 +10,8 @@ localVariance(
   metric = c("expr_chrM_ratio"),
   samples = "sample_id",
   log = FALSE,
-  name = NULL
+  name = NULL,
+  workers = 1
 )
 }
 \arguments{
@@ -20,19 +21,21 @@ sample_id, sum_umi, sum_gene}
 \item{n_neighbors}{Number of nearest neighbors to use for variance
 calculation}
 
-\item{metric}{metric to use for variance calculation}
+\item{metric}{Metric to use for variance calculation}
 
 \item{samples}{Column in colData to use for sample ID}
 
 \item{log}{Whether to log1p transform the metric}
 
 \item{name}{Name of the new column to add to colData}
+
+\item{workers}{Number of workers to use for parallel computation}
 }
 \value{
 SpatialExperiment object with metric variance added to colData
 }
 \description{
-This function does calculates the local variance based on kNN.
+This function calculates the local variance based on kNN.
 }
 \examples{
 
@@ -64,9 +67,9 @@ colnames(colData(spe))
 spe <- localVariance(spe,
     metric = "subsets_Mito_percent",
     n_neighbors = 36,
-    name = "local_mito_variance_k36"
+    name = "local_mito_variance_k36",
+    workers = 1
     )
 
-plotQC(spe, metric="local_mito_variance_k36")
 
 }

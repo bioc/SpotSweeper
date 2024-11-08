@@ -11,11 +11,13 @@ localOutliers(
   n_neighbors = 36,
   samples = "sample_id",
   log = TRUE,
-  cutoff = 3
+  cutoff = 3,
+  neighborhood = spatialCoords(spe_subset),
+  workers = 1
 )
 }
 \arguments{
-\item{spe}{SpatialExperiment object}
+\item{spe}{SpatialExperiment or SingleCellExperiment object}
 
 \item{metric}{colData QC metric to use for outlier detection}
 
@@ -29,9 +31,13 @@ localOutliers(
 (default is TRUE)}
 
 \item{cutoff}{Cutoff for outlier detection (default is 3)}
+
+\item{neighborhood}{Matrix of spatial coordinates for neighborhood calculation}
+
+\item{workers}{Number of workers for parallel processing (default is 1)}
 }
 \value{
-SpatialExperiment object with updated colData containing outputs
+SpatialExperiment or SingleCellExperiment object with updated colData containing outputs
 }
 \description{
 This function detects local outliers in spatial transcriptomics data based on
@@ -65,7 +71,8 @@ colnames(colData(spe))
 spe <- localOutliers(spe,
                      metric = "sum",
                      direction = "lower",
-                     log = TRUE
+                     log = TRUE,
+                     neighborhood = spatialCoords(spe)
 )
 
 }

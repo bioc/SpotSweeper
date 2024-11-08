@@ -52,10 +52,9 @@
 #'     metric = "subsets_Mito_percent",
 #'     n_neighbors = 36,
 #'     name = "local_mito_variance_k36",
-#'     workers = 4
+#'     workers = 1
 #'     )
 #'
-#' plotQC(spe, metric="local_mito_variance_k36")
 #'
 localVariance <- function(spe, n_neighbors = 36,
                           metric = c("expr_chrM_ratio"),

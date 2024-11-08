@@ -1,7 +1,7 @@
 Package: SpotSweeper
 Title: Spatially-aware quality control for spatial transcriptomics
 Version: 1.1.2
-Date: 2024-4-10
+Date: 2024-11-08
 Authors@R: c(
     person("Michael", "Totty", ,"mictott@gmail.com", role = c("aut", "cre"),
            comment = c(ORCID = "0000-0002-9292-8556")),
@@ -38,7 +38,8 @@ Imports:
     MASS,
     ggplot2,
     spatialEco,
-    grDevices
+    grDevices,
+    BiocParallel
 Suggests:
     knitr,
     BiocStyle,

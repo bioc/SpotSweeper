@@ -9,7 +9,8 @@ findArtifacts(
   mito_percent = "expr_chrM_ratio",
   mito_sum = "expr_chrM",
   samples = "sample_id",
-  n_rings = 5,
+  n_order = 5,
+  shape = "hexagonal",
   log = TRUE,
   name = "artifact",
   var_output = TRUE
@@ -27,8 +28,11 @@ Default is 'expr_chrM'.}
 \item{samples}{The column name representing sample IDs. Default is
 'sample_id'.}
 
-\item{n_rings}{The number of rings for local mito variance calculation.
+\item{n_order}{The number of orders for local mito variance calculation.
 Default is 5.}
+
+\item{shape}{The shape of the neighborhood for local variance calculation.
+Can be either 'hexagonal' or 'square'. Default is 'hexagonal'.}
 
 \item{log}{Logical, indicating whether to log1p transform mito_percent.
 Default is TRUE.}
@@ -61,7 +65,8 @@ spe <- DLPFC_artifact
 spe <- findArtifacts(spe,
     mito_percent = "expr_chrM_ratio",
     mito_sum = "expr_chrM",
-    n_rings = 2, # 5 recommended, using 1 for time
+    n_order = 2, # 5 recommended, using 2 for time
+    shape = "hexagonal",
     name = "artifact"
 )
 
