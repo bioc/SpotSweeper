@@ -1,4 +1,60 @@
-
+#' localOutliers Function
+#'
+#' This function detects local outliers in spatial transcriptomics data based on
+#' standard quality control metrics, such as library size, unique genes, and
+#' mitochondrial ratio. Local outliers are defined as spots with low/high
+#' quality metrics compared to their surrounding neighbors, based on a modified
+#' z-score statistic.
+#'
+#' @param spe SpatialExperiment or SingleCellExperiment object
+#' @param metric colData QC metric to use for outlier detection
+#' @param direction Direction of outlier detection (higher, lower, or both)
+#' @param n_neighbors Number of nearest neighbors to use for outlier detection
+#' @param samples Column name in colData to use for sample IDs
+#' @param log Logical indicating whether to log1p transform the features
+#' (default is TRUE)
+#' @param cutoff Cutoff for outlier detection (default is 3)
+#' @param neighborhood Matrix of spatial coordinates for neighborhood calculation
+#' @param workers Number of workers for parallel processing (default is 1)
+#'
+#' @return SpatialExperiment or SingleCellExperiment object with updated colData containing outputs
+#'
+#' @importFrom SummarizedExperiment colData
+#' @importFrom BiocNeighbors findKNN
+#' @importFrom spatialEco outliers
+#' @importFrom BiocParallel MulticoreParam
+#'
+#' @export localOutliers
+#'
+#' @examples
+#' library(SpotSweeper)
+#' library(SpatialExperiment)
+#'
+#' # load example data
+#' spe <- STexampleData::Visium_humanDLPFC()
+#'
+#' # change from gene id to gene names
+#' rownames(spe) <- rowData(spe)$gene_name
+#'
+#' # drop out-of-tissue spots
+#' spe <- spe[, spe$in_tissue == 1]
+#' spe <- spe[, !is.na(spe$ground_truth)]
+#'
+#' # Identifying the mitochondrial transcripts in our SpatialExperiment.
+#' is.mito <- rownames(spe)[grepl("^MT-", rownames(spe))]
+#'
+#' # Calculating QC metrics for each spot using scuttle
+#' spe <- scuttle::addPerCellQCMetrics(spe, subsets = list(Mito = is.mito))
+#' colnames(colData(spe))
+#'
+#' # Identifying local outliers using SpotSweeper
+#' spe <- localOutliers(spe,
+#'                      metric = "sum",
+#'                      direction = "lower",
+#'                      log = TRUE,
+#'                      neighborhood = spatialCoords(spe)
+#' )
+#'
 localOutliers <- function(
     spe, metric = "detected",
     direction = "lower", n_neighbors = 36, samples = "sample_id",
@@ -22,63 +78,7 @@ localOutliers <- function(
       n_neighbors != round(n_neighbors)) {
     stop("'n_neighbors' must be a positive integer.")
   }
-  #' localOutliers Function
-  #'
-  #' This function detects local outliers in spatial transcriptomics data based on
-  #' standard quality control metrics, such as library size, unique genes, and
-  #' mitochondrial ratio. Local outliers are defined as spots with low/high
-  #' quality metrics compared to their surrounding neighbors, based on a modified
-  #' z-score statistic.
-  #'
-  #' @param spe SpatialExperiment or SingleCellExperiment object
-  #' @param metric colData QC metric to use for outlier detection
-  #' @param direction Direction of outlier detection (higher, lower, or both)
-  #' @param n_neighbors Number of nearest neighbors to use for outlier detection
-  #' @param samples Column name in colData to use for sample IDs
-  #' @param log Logical indicating whether to log1p transform the features
-  #' (default is TRUE)
-  #' @param cutoff Cutoff for outlier detection (default is 3)
-  #' @param neighborhood Matrix of spatial coordinates for neighborhood calculation
-  #' @param workers Number of workers for parallel processing (default is 1)
-  #'
-  #' @return SpatialExperiment or SingleCellExperiment object with updated colData containing outputs
-  #'
-  #' @importFrom SummarizedExperiment colData
-  #' @importFrom BiocNeighbors findKNN
-  #' @importFrom spatialEco outliers
-  #' @importFrom BiocParallel MulticoreParam
-  #'
-  #' @export localOutliers
-  #'
-  #' @examples
-  #' library(SpotSweeper)
-  #' library(SpatialExperiment)
-  #'
-  #' # load example data
-  #' spe <- STexampleData::Visium_humanDLPFC()
-  #'
-  #' # change from gene id to gene names
-  #' rownames(spe) <- rowData(spe)$gene_name
-  #'
-  #' # drop out-of-tissue spots
-  #' spe <- spe[, spe$in_tissue == 1]
-  #' spe <- spe[, !is.na(spe$ground_truth)]
-  #'
-  #' # Identifying the mitochondrial transcripts in our SpatialExperiment.
-  #' is.mito <- rownames(spe)[grepl("^MT-", rownames(spe))]
-  #'
-  #' # Calculating QC metrics for each spot using scuttle
-  #' spe <- scuttle::addPerCellQCMetrics(spe, subsets = list(Mito = is.mito))
-  #' colnames(colData(spe))
-  #'
-  #' # Identifying local outliers using SpotSweeper
-  #' spe <- localOutliers(spe,
-  #'                      metric = "sum",
-  #'                      direction = "lower",
-  #'                      log = TRUE,
-  #'                      neighborhood = spatialCoords(spe)
-  #' )
-  #'
+
   # Check 'cutoff' is a numeric value
   if (!is.numeric(cutoff)) {
     stop("'cutoff' must be a numeric value.")
@@ -166,4 +166,3 @@ localOutliers <- function(
 
   return(spe)
 }
-
