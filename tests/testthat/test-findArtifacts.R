@@ -7,7 +7,7 @@ set.seed(123)
 spe <- findArtifacts(spe,
                      mito_percent = "expr_chrM_ratio",
                      mito_sum = "expr_chrM",
-                     n_rings = 2,
+                     n_order = 2,
                      name = "artifact"
 )
 

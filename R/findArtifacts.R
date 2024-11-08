@@ -12,8 +12,10 @@
 #' Default is 'expr_chrM'.
 #' @param samples The column name representing sample IDs. Default is
 #' 'sample_id'.
-#' @param n_rings The number of rings for local mito variance calculation.
+#' @param n_order The number of orders for local mito variance calculation.
 #' Default is 5.
+#' @param shape The shape of the neighborhood for local variance calculation.
+#' Can be either 'hexagonal' or 'square'. Default is 'hexagonal'.
 #' @param log Logical, indicating whether to log1p transform mito_percent.
 #' Default is TRUE.
 #' @param name Prefix for the local variance column names. Default is
@@ -45,114 +47,122 @@
 #' spe <- findArtifacts(spe,
 #'     mito_percent = "expr_chrM_ratio",
 #'     mito_sum = "expr_chrM",
-#'     n_rings = 2, # 5 recommended, using 1 for time
+#'     n_order = 2, # 5 recommended, using 2 for time
+#'     shape = "hexagonal",
 #'     name = "artifact"
 #' )
 #'
 #'
 #' @export
 findArtifacts <- function(
-        spe, mito_percent = "expr_chrM_ratio",
-        mito_sum = "expr_chrM", samples = "sample_id", n_rings = 5,
-         log = TRUE, name = "artifact", var_output = TRUE) {
+    spe, mito_percent = "expr_chrM_ratio",
+    mito_sum = "expr_chrM", samples = "sample_id", n_order = 5,
+    shape = "hexagonal", log = TRUE, name = "artifact", var_output = TRUE) {
 
-    # ===== Validity checks =====
-    if (!("SpatialExperiment" %in% class(spe))) {
-      stop("Input data must be a SpatialExperiment object.")
-    }
+  # ===== Validity checks =====
+  if (!("SpatialExperiment" %in% class(spe))) {
+    stop("Input data must be a SpatialExperiment object.")
+  }
 
-    if (!all(mito_percent %in% colnames(colData(spe)))) {
-      stop("mito_percent must be present in colData.")
-    }
+  if (!all(mito_percent %in% colnames(colData(spe)))) {
+    stop("mito_percent must be present in colData.")
+  }
 
-    if (!mito_sum %in% colnames(colData(spe))) {
-      stop("mito_sum must be present in colData.")
-    }
+  if (!mito_sum %in% colnames(colData(spe))) {
+    stop("mito_sum must be present in colData.")
+  }
 
-    if (!samples %in% colnames(colData(spe))) {
-      stop("Samples column must be present in colData.")
-    }
+  if (!samples %in% colnames(colData(spe))) {
+    stop("Samples column must be present in colData.")
+  }
 
-    if (!is.numeric(n_rings) ||
-        n_rings <= 0 ||
-        n_rings != round(n_rings)) {
-      stop("'n_rings' must be a positive integer.")
-    }
+  if (!is.numeric(n_order) ||
+      n_order <= 0 ||
+      n_order != round(n_order)) {
+    stop("'n_order' must be a positive integer.")
+  }
 
-    # get unique sample IDs
-    unique_sample_ids <- unique(colData(spe)[[samples]])
+  if (!shape %in% c("hexagonal", "square")) {
+    stop("'shape' must be either 'hexagonal' or 'square'.")
+  }
 
-    # Initialize a list to store spe for each sample
-    columnData_list <- sapply(unique_sample_ids, FUN = function(x) NULL)
+  # get unique sample IDs
+  unique_sample_ids <- unique(colData(spe)[[samples]])
 
-    for (sample in unique_sample_ids) {
-        # subset by sample
-        spe.temp <- spe[, colData(spe)[[samples]] == sample]
+  # Initialize a list to store spe for each sample
+  columnData_list <- sapply(unique_sample_ids, FUN = function(x) NULL)
 
-        # ======= Calculate local mito variance ========
-        # Use vapply to iterate over rings_seq
-        var_matrix <- vapply(seq_len(n_rings), function(i) {
-          # Calculate n_neighbors for the current ring
-          n_neighbors <- 3 * i * (i + 1)
-          tmp.name <- paste0("k", n_neighbors)
+  for (sample in unique_sample_ids) {
+    # subset by sample
+    spe.temp <- spe[, colData(spe)[[samples]] == sample]
 
-          # Apply local variance calculation
-          spe.temp <<- localVariance(spe.temp,
-                                    metric = mito_percent,
-                                    n_neighbors = n_neighbors,
-                                    name = tmp.name,
-                                    log=log)
+    # ======= Calculate local mito variance ========
+    # Use vapply to iterate over order_seq
+    var_matrix <- vapply(seq_len(n_order), function(i) {
+      # Calculate n_neighbors for the current order
+      if (shape == "hexagonal") {
+        n_neighbors <- 3 * i * (i + 1)
+      } else if (shape == "square") {
+        n_neighbors <- 4 * i * (i + 1)
+      }
+      tmp.name <- paste0("k", n_neighbors)
 
-          # Extract and return the column corresponding to tmp.name from colData
-          colData(spe.temp)[[tmp.name]]
-        }, numeric(length(spe.temp[[1]])))
+      # Apply local variance calculation
+      spe.temp <<- localVariance(spe.temp,
+                                 metric = mito_percent,
+                                 n_neighbors = n_neighbors,
+                                 name = tmp.name,
+                                 log=log)
+
+      # Extract and return the column corresponding to tmp.name from colData
+      colData(spe.temp)[[tmp.name]]
+    }, numeric(length(spe.temp[[1]])))
 
 
-        # ========== PCA and clustering ==========
-        var_matrix <- cbind(
-            var_matrix,
-            colData(spe.temp)[[mito_percent]],
-            colData(spe.temp)[[mito_sum]]
-        )
+    # ========== PCA and clustering ==========
+    var_matrix <- cbind(
+      var_matrix,
 
-        var_df <- data.frame(var_matrix)
+      colData(spe.temp)[[mito_percent]],
+      colData(spe.temp)[[mito_sum]]
+    )
 
-        # Run PCA and add to reduced dims
-        pc <- prcomp(var_df, center = TRUE, scale. = TRUE)
-        rownames(pc$x) <- colnames(spe.temp) # assign rownames to avoid error
-        reducedDim(spe.temp, "PCA_artifacts") <- pc$x
+    var_df <- data.frame(var_matrix)
 
-        # Cluster using kmeans and add to temp sce
-        clus <- kmeans(pc$x, centers = 2, nstart = 25)
-        spe.temp$Kmeans <- clus$cluster
+    # Run PCA and add to reduced dims
+    pc <- prcomp(var_df, center = TRUE, scale. = TRUE)
+    rownames(pc$x) <- colnames(spe.temp) # assign rownames to avoid error
+    reducedDim(spe.temp, "PCA_artifacts") <- pc$x
 
-        # =========== Artifact annotation ===========
+    # Cluster using kmeans and add to temp sce
+    clus <- kmeans(pc$x, centers = 2, nstart = 25)
+    spe.temp$Kmeans <- clus$cluster
 
-        # calculate average local variance of the two clusters
-        clus1_mean <- mean(colData(spe.temp)[[paste0("k",18
-        )]][spe.temp$Kmeans == 1])
-        clus2_mean <- mean(colData(spe.temp)[[paste0("k",18
-        )]][spe.temp$Kmeans == 2])
+    # =========== Artifact annotation ===========
 
-        artifact_clus <- which.min(c(clus1_mean, clus2_mean))
+    # calculate average local variance of the two clusters
+    clus1_mean <- mean(colData(spe.temp)[[paste0("k", if (shape == "hexagonal") 18 else 24)]][spe.temp$Kmeans == 1])
+    clus2_mean <- mean(colData(spe.temp)[[paste0("k", if (shape == "hexagonal") 18 else 24)]][spe.temp$Kmeans == 2])
 
-        # create a new $artifact column; if clus1 mean < clus2 - rename Kmeans
-        # 1 to 'TRUE'
-        spe.temp$artifact <- FALSE
-        spe.temp$artifact[spe.temp$Kmeans == artifact_clus] <- TRUE
-        spe.temp$Kmeans <- NULL
+    artifact_clus <- which.min(c(clus1_mean, clus2_mean))
 
-        # add to sample list
-        columnData_list[[sample]] <- colData(spe.temp)
-    }
+    # create a new $artifact column; if clus1 mean < clus2 - rename Kmeans
+    # 1 to 'TRUE'
+    spe.temp$artifact <- FALSE
+    spe.temp$artifact[spe.temp$Kmeans == artifact_clus] <- TRUE
+    spe.temp$Kmeans <- NULL
 
-    # rbind the list of dataframes
-    columnData_aggregated <- do.call(rbind, columnData_list)
+    # add to sample list
+    columnData_list[[sample]] <- colData(spe.temp)
+  }
 
-    # replace SPE column data with aggregated data
-    colData(spe) <- columnData_aggregated
-    reducedDims(spe) <- reducedDims(spe.temp)
+  # rbind the list of dataframes
+  columnData_aggregated <- do.call(rbind, columnData_list)
 
-    # return sce
-    return(spe)
+  # replace SPE column data with aggregated data
+  colData(spe) <- columnData_aggregated
+  reducedDims(spe) <- reducedDims(spe.temp)
+
+  # return sce
+  return(spe)
 }
