@@ -1,65 +1,14 @@
-#' localOutliers Function
-#'
-#' This function detects local outliers in spatial transcriptomics data based on
-#' standard quality control metrics, such as library size, unique genes, and
-#' mitochondrial ratio. Local outliers are defined as spots with low/high
-#' quality metrics compared to their surrounding neighbors, based on a modified
-#' z-score statistic.
-#'
-#' @param spe SpatialExperiment object
-#' @param metric colData QC metric to use for outlier detection
-#' @param direction Direction of outlier detection (higher, lower, or both)
-#' @param n_neighbors Number of nearest neighbors to use for outlier detection
-#' @param samples Column name in colData to use for sample IDs
-#' @param log Logical indicating whether to log1p transform the features
-#' (default is TRUE)
-#' @param cutoff Cutoff for outlier detection (default is 3)
-#'
-#' @return SpatialExperiment object with updated colData containing outputs
-#'
-#' @importFrom SummarizedExperiment colData
-#' @importFrom BiocNeighbors findKNN
-#' @importFrom spatialEco outliers
-#'
-#' @export localOutliers
-#'
-#' @examples
-#' library(SpotSweeper)
-#' library(SpatialExperiment)
-#'
-#' # load example data
-#' spe <- STexampleData::Visium_humanDLPFC()
-#'
-#' # change from gene id to gene names
-#' rownames(spe) <- rowData(spe)$gene_name
-#'
-#' # drop out-of-tissue spots
-#' spe <- spe[, spe$in_tissue == 1]
-#' spe <- spe[, !is.na(spe$ground_truth)]
-#'
-#' # Identifying the mitochondrial transcripts in our SpatialExperiment.
-#' is.mito <- rownames(spe)[grepl("^MT-", rownames(spe))]
-#'
-#' # Calculating QC metrics for each spot using scuttle
-#' spe <- scuttle::addPerCellQCMetrics(spe, subsets = list(Mito = is.mito))
-#' colnames(colData(spe))
-#'
-#' # Identifying local outliers using SpotSweeper
-#' spe <- localOutliers(spe,
-#'                      metric = "sum",
-#'                      direction = "lower",
-#'                      log = TRUE
-#' )
-#'
+
 localOutliers <- function(
-        spe, metric = "detected",
-        direction = "lower", n_neighbors = 36, samples = "sample_id",
-        log = TRUE, cutoff = 3) {
+    spe, metric = "detected",
+    direction = "lower", n_neighbors = 36, samples = "sample_id",
+    log = TRUE, cutoff = 3, neighborhood = spatialCoords(spe_subset),
+    workers=1) {
 
   # ===== Validity checks =====
   # Check if 'spe' is a valid object with required components
-  if (!("SpatialExperiment" %in% class(spe))) {
-    stop("Input data must be a SpatialExperiment object.")
+  if (!("SpatialExperiment" %in% class(spe) || "SingleCellExperiment" %in% class(spe))) {
+    stop("Input data must be either a SpatialExperiment or SingleCellExperiment object.")
   }
 
   # Validate 'direction'
@@ -73,7 +22,63 @@ localOutliers <- function(
       n_neighbors != round(n_neighbors)) {
     stop("'n_neighbors' must be a positive integer.")
   }
-
+  #' localOutliers Function
+  #'
+  #' This function detects local outliers in spatial transcriptomics data based on
+  #' standard quality control metrics, such as library size, unique genes, and
+  #' mitochondrial ratio. Local outliers are defined as spots with low/high
+  #' quality metrics compared to their surrounding neighbors, based on a modified
+  #' z-score statistic.
+  #'
+  #' @param spe SpatialExperiment or SingleCellExperiment object
+  #' @param metric colData QC metric to use for outlier detection
+  #' @param direction Direction of outlier detection (higher, lower, or both)
+  #' @param n_neighbors Number of nearest neighbors to use for outlier detection
+  #' @param samples Column name in colData to use for sample IDs
+  #' @param log Logical indicating whether to log1p transform the features
+  #' (default is TRUE)
+  #' @param cutoff Cutoff for outlier detection (default is 3)
+  #' @param neighborhood Matrix of spatial coordinates for neighborhood calculation
+  #' @param workers Number of workers for parallel processing (default is 1)
+  #'
+  #' @return SpatialExperiment or SingleCellExperiment object with updated colData containing outputs
+  #'
+  #' @importFrom SummarizedExperiment colData
+  #' @importFrom BiocNeighbors findKNN
+  #' @importFrom spatialEco outliers
+  #' @importFrom BiocParallel MulticoreParam
+  #'
+  #' @export localOutliers
+  #'
+  #' @examples
+  #' library(SpotSweeper)
+  #' library(SpatialExperiment)
+  #'
+  #' # load example data
+  #' spe <- STexampleData::Visium_humanDLPFC()
+  #'
+  #' # change from gene id to gene names
+  #' rownames(spe) <- rowData(spe)$gene_name
+  #'
+  #' # drop out-of-tissue spots
+  #' spe <- spe[, spe$in_tissue == 1]
+  #' spe <- spe[, !is.na(spe$ground_truth)]
+  #'
+  #' # Identifying the mitochondrial transcripts in our SpatialExperiment.
+  #' is.mito <- rownames(spe)[grepl("^MT-", rownames(spe))]
+  #'
+  #' # Calculating QC metrics for each spot using scuttle
+  #' spe <- scuttle::addPerCellQCMetrics(spe, subsets = list(Mito = is.mito))
+  #' colnames(colData(spe))
+  #'
+  #' # Identifying local outliers using SpotSweeper
+  #' spe <- localOutliers(spe,
+  #'                      metric = "sum",
+  #'                      direction = "lower",
+  #'                      log = TRUE,
+  #'                      neighborhood = spatialCoords(spe)
+  #' )
+  #'
   # Check 'cutoff' is a numeric value
   if (!is.numeric(cutoff)) {
     stop("'cutoff' must be a numeric value.")
@@ -82,11 +87,11 @@ localOutliers <- function(
   # ===== Start function =====
   # log transform specified metric
   if (log) {
-      metric_log <- paste0(metric, "_log")
-      colData(spe)[metric_log] <- log1p(colData(spe)[[metric]])
-      metric_to_use <- metric_log
+    metric_log <- paste0(metric, "_log")
+    colData(spe)[metric_log] <- log1p(colData(spe)[[metric]])
+    metric_to_use <- metric_log
   } else {
-      metric_to_use <- metric
+    metric_to_use <- metric
   }
 
   # Get a list of unique sample IDs
@@ -98,16 +103,15 @@ localOutliers <- function(
   # Loop through each unique sample ID
   for (sample in unique_sample_ids) {
     # Subset the data for the current sample
-    spe_subset <- spe[, colData(spe)[[samples]] ==
-                        sample]
+    spe_subset <- spe[, colData(spe)[[samples]] == sample]
 
     # Create a list of spatial coordinates and qc features
     columnData <- colData(spe_subset)
 
     # Find nearest neighbors
-    dnn <- BiocNeighbors::findKNN(spatialCoords(spe_subset),
-                                  k = n_neighbors, warn.ties = FALSE
-    )$index
+    dnn <- BiocNeighbors::findKNN(neighborhood,
+                                  k = n_neighbors, warn.ties = FALSE,
+                                  BPPARAM = BiocParallel::MulticoreParam(workers=workers))$index
 
     # get neighborhood metrics
     neighborhoods <- lapply(seq_len(nrow(dnn)), function(i) {
@@ -129,21 +133,21 @@ localOutliers <- function(
     # find outliers based on cutoff, store in colData
     metric_outliers <- paste0(metric, "_outliers")
     columnData[metric_outliers] <- switch(direction,
-                                     higher = sapply(
-                                       mod_z_matrix,
-                                       function(x) x > cutoff
-                                     ),
-                                     lower = sapply(
-                                       mod_z_matrix,
-                                       function(x) x < -cutoff
-                                     ),
-                                     both = sapply(
-                                       mod_z_matrix,
-                                       function(x) {
-                                         x > cutoff | x <
-                                           -cutoff
-                                       }
-                                     )
+                                          higher = sapply(
+                                            mod_z_matrix,
+                                            function(x) x > cutoff
+                                          ),
+                                          lower = sapply(
+                                            mod_z_matrix,
+                                            function(x) x < -cutoff
+                                          ),
+                                          both = sapply(
+                                            mod_z_matrix,
+                                            function(x) {
+                                              x > cutoff | x <
+                                                -cutoff
+                                            }
+                                          )
     )
 
     # add z-scores to colData
@@ -162,3 +166,4 @@ localOutliers <- function(
 
   return(spe)
 }
+
