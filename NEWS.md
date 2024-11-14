@@ -13,9 +13,6 @@
 
 - **Parallelization**: Added a `workers` argument for parallel processing using `BiocParallel` in both `localOutlier` and `localVariance` functions. This allows for faster computation, particularly on larger datasets.
 
-- **`neighborhood` Argument**: Introduced a new `neighborhood` parameter to the `localOutlier` function to support neighborhoods beyond spatial coordinates. Users can now specify alternative neighborhood matrices, such as reduced dimensions from PCA or UMAP, enabling local outlier detection in non-spatial datasets such as snRNA-seq.
-
-
 ### Deprecations
 - **`plotQC` Function Deprecated**: The `plotQC` function is now deprecated. While it remains available for backward compatibility, users are encouraged to transition to `plotQCmetrics`. Calling `plotQC` will display a warning, reminding users of the deprecation.
 
