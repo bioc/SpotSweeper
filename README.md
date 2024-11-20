@@ -1,7 +1,7 @@
 
 <!-- README.md is generated from README.Rmd. Please edit that file -->
 
-# SpotSweeper
+# SpotSweeper <img src="man/figures/hexsticker.png" align="right" style="width:200px;" />
 
 <!-- badges: start -->
 
@@ -15,8 +15,9 @@ experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](h
 outliers and regional artifacts in spot-based spatial transcriptomics
 data, such as 10x Genomics `Visium`, using standard QC metrics.
 
-If you experience an issues user the package, please open an issue on
-the [GitHub repository](https://github.com/MicTott/SpotSweeper/issues).
+If you experience any issues using the package or would like to make a
+suggestuin, please open an issue on the [GitHub
+repository](https://github.com/MicTott/SpotSweeper/issues).
 
 To find more information, please visit the [documentation
 website](http://MicTott.github.io/SpotSweeper).
