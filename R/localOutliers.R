@@ -14,7 +14,6 @@
 #' @param log Logical indicating whether to log1p transform the features
 #' (default is TRUE)
 #' @param cutoff Cutoff for outlier detection (default is 3)
-#' @param neighborhood Matrix of spatial coordinates for neighborhood calculation
 #' @param workers Number of workers for parallel processing (default is 1)
 #'
 #' @return SpatialExperiment or SingleCellExperiment object with updated colData containing outputs
@@ -51,15 +50,13 @@
 #' spe <- localOutliers(spe,
 #'                      metric = "sum",
 #'                      direction = "lower",
-#'                      log = TRUE,
-#'                      neighborhood = spatialCoords(spe)
+#'                      log = TRUE
 #' )
 #'
 localOutliers <- function(
     spe, metric = "detected",
     direction = "lower", n_neighbors = 36, samples = "sample_id",
-    log = TRUE, cutoff = 3, neighborhood = spatialCoords(spe_subset),
-    workers=1) {
+    log = TRUE, cutoff = 3, workers=1) {
 
   # ===== Validity checks =====
   # Check if 'spe' is a valid object with required components
@@ -109,7 +106,7 @@ localOutliers <- function(
     columnData <- colData(spe_subset)
 
     # Find nearest neighbors
-    dnn <- BiocNeighbors::findKNN(neighborhood,
+    dnn <- BiocNeighbors::findKNN(spatialCoords(spe_subset),
                                   k = n_neighbors, warn.ties = FALSE,
                                   BPPARAM = BiocParallel::MulticoreParam(workers=workers))$index
 

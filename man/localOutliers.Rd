@@ -12,7 +12,6 @@ localOutliers(
   samples = "sample_id",
   log = TRUE,
   cutoff = 3,
-  neighborhood = spatialCoords(spe_subset),
   workers = 1
 )
 }
@@ -31,8 +30,6 @@ localOutliers(
 (default is TRUE)}
 
 \item{cutoff}{Cutoff for outlier detection (default is 3)}
-
-\item{neighborhood}{Matrix of spatial coordinates for neighborhood calculation}
 
 \item{workers}{Number of workers for parallel processing (default is 1)}
 }
@@ -71,8 +68,7 @@ colnames(colData(spe))
 spe <- localOutliers(spe,
                      metric = "sum",
                      direction = "lower",
-                     log = TRUE,
-                     neighborhood = spatialCoords(spe)
+                     log = TRUE
 )
 
 }
