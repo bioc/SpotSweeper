@@ -1,4 +1,4 @@
-citHeader("SpotSweeper is described in the following preprint:")
+citHeader("To cite SpotSweeper in publications, please use the following reference:")
 
 citEntry(
   entry  = "Article",
@@ -8,8 +8,6 @@ citEntry(
                       as.person("Boyi Guo")),
   journal = "bioRxiv",
   year    = "2024",
-  doi     = "10.1101/2024.06.06.597765v1",
-  textVersion = paste0(
-    "Totty et al. (2024), SpotSweeper: spatially-aware quality control for spatial transcriptomics, bioRxiv."
-  )
+  doi     = "10.1101/2024.06.06.597765",
+  textVersion = "Michael Totty, Stephanie Hicks, Boyi Guo (2024). SpotSweeper: spatially-aware quality control for spatial transcriptomics. bioRxiv. doi:10.1101/2024.06.06.597765."
 )

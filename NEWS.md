@@ -1,5 +1,10 @@
 # SpotSweeper Package News
 
+# Verison 1.3.2
+
+## New Features
+- **Added** the 'flagVisiumOutliers()' function to identify and flag systematic outlier spots in Visium datasets. This feature enhances data quality by allowing users to efficiently detect and exclude problematic spots from downstream analyses.
+
 # Version 1.3.1
 
 ## Major Changes
