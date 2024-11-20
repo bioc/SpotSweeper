@@ -16,7 +16,7 @@ outliers and regional artifacts in spot-based spatial transcriptomics
 data, such as 10x Genomics `Visium`, using standard QC metrics.
 
 If you experience any issues using the package or would like to make a
-suggestuin, please open an issue on the [GitHub
+suggestion, please open an issue on the [GitHub
 repository](https://github.com/MicTott/SpotSweeper/issues).
 
 To find more information, please visit the [documentation
