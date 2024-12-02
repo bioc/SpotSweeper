@@ -5,25 +5,29 @@ pkgVer <- function(pkg) {
 }
 
 c(
-
-    bibentry(bibtype="manual",
-        title = "SpotSweeper: Spot and artifact-level quality control for spatially-resolved transcriptomics data",
+    # Manual citation for the package itself
+    bibentry(bibtype = "manual",
+        title = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
         author = personList(
-            as.person("MicTott")
+            as.person("Michael Totty")
         ),
         year = format(Sys.Date(), "%Y"),
         url = "http://www.bioconductor.org/packages/SpotSweeper",
         note = pkgVer('SpotSweeper'),
-        doi = '10.18129/B9.bioc.SpotSweeper'
+        doi = "10.18129/B9.bioc.SpotSweeper"
     ),
-    bibentry(bibtype="article",
-        title = "SpotSweeper: Spot and artifact-level quality control for spatially-resolved transcriptomics data",
+
+    # Article citation for a peer-reviewed or preprint article
+    bibentry(bibtype = "article",
+        title = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
         author = personList(
-            as.person("MicTott")
+            as.person("Michael Totty"),
+            as.person("Stephanie Hicks"),
+            as.person("Boyi Guo")
         ),
-        year = format(Sys.Date(), "%Y"),
         journal = "bioRxiv",
-        doi = "10.1101/TODO",
-        url = "https://www.biorxiv.org/content/10.1101/TODO"
+        year = "2024",
+        doi = "10.1101/2024.06.06.597765",
+        url = "https://doi.org/10.1101/2024.06.06.597765"
     )
 )
