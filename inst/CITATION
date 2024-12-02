@@ -1,13 +1,33 @@
-citHeader("To cite SpotSweeper in publications, please use the following reference:")
+pkgVer <- function(pkg) {
+    if (!exists("meta") || is.null(meta)) meta <- packageDescription(pkg)
+    ver <- meta$Version
+    paste0('https://github.com/MicTott/SpotSweeper/', pkg, ' - R package version ', ver)
+}
 
-citEntry(
-  entry  = "Article",
-  title  = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
-  author = personList(as.person("Michael Totty"),
-                      as.person("Stephanie Hicks"),
-                      as.person("Boyi Guo")),
-  journal = "bioRxiv",
-  year    = "2024",
-  doi     = "10.1101/2024.06.06.597765",
-  textVersion = "Michael Totty, Stephanie Hicks, Boyi Guo (2024). SpotSweeper: spatially-aware quality control for spatial transcriptomics. bioRxiv. doi:10.1101/2024.06.06.597765."
+c(
+    # Manual citation for the package itself
+    bibentry(bibtype = "manual",
+        title = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
+        author = personList(
+            as.person("Michael Totty")
+        ),
+        year = format(Sys.Date(), "%Y"),
+        url = "http://www.bioconductor.org/packages/SpotSweeper",
+        note = pkgVer('SpotSweeper'),
+        doi = "10.18129/B9.bioc.SpotSweeper"
+    ),
+
+    # Article citation for a peer-reviewed or preprint article
+    bibentry(bibtype = "article",
+        title = "SpotSweeper: spatially-aware quality control for spatial transcriptomics",
+        author = personList(
+            as.person("Michael Totty"),
+            as.person("Stephanie Hicks"),
+            as.person("Boyi Guo")
+        ),
+        journal = "bioRxiv",
+        year = "2024",
+        doi = "10.1101/2024.06.06.597765",
+        url = "https://doi.org/10.1101/2024.06.06.597765"
+    )
 )
