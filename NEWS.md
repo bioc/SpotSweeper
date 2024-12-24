@@ -2,6 +2,11 @@
 
 # Verison 1.3.2
 
+## Minor Changes
+- **Broadened Compatibility**: Updated all functions to use `inherits(spe, "SpatialExperiment")` instead of checking `class(spe)` directly. This change ensures that derived classes (e.g., `SpatialFeatureExperiment`) are also supported, improving flexibility and ease of use.
+
+# Verison 1.3.2
+
 ## New Features
 - **Added** the 'flagVisiumOutliers()' function to identify and flag systematic outlier spots in Visium datasets. This feature enhances data quality by allowing users to efficiently detect and exclude problematic spots from downstream analyses.
 
