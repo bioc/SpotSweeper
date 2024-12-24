@@ -60,8 +60,9 @@ findArtifacts <- function(
     shape = "hexagonal", log = TRUE, name = "artifact", var_output = TRUE) {
 
   # ===== Validity checks =====
-  if (!("SpatialExperiment" %in% class(spe))) {
-    stop("Input data must be a SpatialExperiment object.")
+  # Check if 'spe' is (or inherits from) SpatialExperiment
+  if (!inherits(spe, "SpatialExperiment")) {
+    stop("Input data must be a SpatialExperiment or inherit from SpatialExperiment.")
   }
 
   if (!all(mito_percent %in% colnames(colData(spe)))) {

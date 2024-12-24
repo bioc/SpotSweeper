@@ -33,10 +33,9 @@
 #'
 flagVisiumOutliers <- function(spe) {
 
-  # Check if 'spe' is a SpatialExperiment object
-  # Check if 'spe' is a valid object with required components
-  if (!("SpatialExperiment" %in% class(spe))) {
-    stop("Input data must be either a SpatialExperiment")
+  # Check if 'spe' is (or inherits from) SpatialExperiment
+  if (!inherits(spe, "SpatialExperiment")) {
+    stop("Input data must be a SpatialExperiment or inherit from SpatialExperiment.")
   }
 
   # Load the biased_spots dataset

@@ -59,9 +59,9 @@ localOutliers <- function(
     log = TRUE, cutoff = 3, workers=1) {
 
   # ===== Validity checks =====
-  # Check if 'spe' is a valid object with required components
-  if (!("SpatialExperiment" %in% class(spe) || "SingleCellExperiment" %in% class(spe))) {
-    stop("Input data must be either a SpatialExperiment or SingleCellExperiment object.")
+  # Check if 'spe' is (or inherits from) SpatialExperiment
+  if (!inherits(spe, "SpatialExperiment")) {
+    stop("Input data must be a SpatialExperiment or inherit from SpatialExperiment.")
   }
 
   # Validate 'direction'
